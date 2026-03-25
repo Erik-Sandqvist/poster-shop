@@ -19,7 +19,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Montserrat', 'sans-serif'],
-        rubrik: ['"Rubrik Dirt"', 'cursive'],
+        'rubik-dirt': ['Rubik Dirt', 'cursive'],
       },
       colors: {
         border: "#d4dbe3",
