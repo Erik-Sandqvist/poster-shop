@@ -19,6 +19,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { Database } from '@/integrations/supabase/types';
 type Product = Database['public']['Tables']['products']['Row'];
 type ProductVariant = Database['public']['Tables']['product_variants']['Row'];
+type Category = Database['public']['Tables']['categories']['Row'];
+
+const getSupabaseErrorMessage = (error: unknown) => {
+  if (error && typeof error === 'object' && 'message' in error && typeof (error as { message?: unknown }).message === 'string') {
+    return (error as { message: string }).message;
+  }
+
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  return 'Unknown error';
+};
 
 export const ProductsAdmin = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -26,31 +39,41 @@ export const ProductsAdmin = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [variantsMap, setVariantsMap] = useState<Record<string, ProductVariant[]>>({});
+  const [categories, setCategories] = useState<Category[]>([]);
   const { toast } = useToast();
 
-  // Fetch products and variants - similar to your Index.tsx approach
+  const fetchCategories = async () => {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) throw error;
+    setCategories(data || []);
+  };
+
+  // Fetch products and variants
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      // Get products
-      const { data: productsData, error: productsError } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-        
-      if (productsError) throw productsError;
-      setProducts(productsData || []);
-      
-      // Get all variants
-      const { data: variantsData, error: variantsError } = await supabase
-        .from('product_variants')
-        .select('*');
-        
-      if (variantsError) throw variantsError;
+      const [productsRes, variantsRes] = await Promise.all([
+        supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('product_variants')
+          .select('*'),
+      ]);
+
+      if (productsRes.error) throw productsRes.error;
+      if (variantsRes.error) throw variantsRes.error;
+
+      setProducts(productsRes.data || []);
       
       // Organize variants by product ID
       const variants: Record<string, ProductVariant[]> = {};
-      variantsData?.forEach(variant => {
+      variantsRes.data?.forEach(variant => {
         if (variant.product_id) {
           if (!variants[variant.product_id]) {
             variants[variant.product_id] = [];
@@ -78,12 +101,90 @@ export const ProductsAdmin = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
+    const loadData = async () => {
+      try {
+        await Promise.all([fetchProducts(), fetchCategories()]);
+      } catch (error) {
+        console.error('Error loading admin data:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load admin data. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    };
+
+    loadData();
   }, []);
+
+  const handleRefresh = async () => {
+    try {
+      await Promise.all([fetchProducts(), fetchCategories()]);
+    } catch (error) {
+      console.error('Error refreshing admin data:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to refresh data. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setShowForm(true);
+  };
+
+  const getCategoryName = (categoryId: string | null) => {
+    if (!categoryId) return 'No category';
+    const category = categories.find((item) => item.id === categoryId);
+    return category ? category.name : `Unknown (${categoryId})`;
+  };
+
+  const getTotalStock = (productId: string) => {
+    const productVariants = variantsMap[productId] || [];
+    return productVariants.reduce((sum, variant) => {
+      const stock = Number((variant as unknown as { stock_quantity?: number | string | null }).stock_quantity ?? 0);
+      return sum + (Number.isFinite(stock) ? stock : 0);
+    }, 0);
+  };
+
+  const handleCreateCategory = async (name: string, description?: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .insert({
+          name,
+          description: description || null,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setCategories((prev) => {
+          const next = [...prev, data];
+          next.sort((a, b) => a.name.localeCompare(b.name));
+          return next;
+        });
+
+        toast({
+          title: 'Success',
+          description: 'Category created successfully',
+        });
+      }
+
+      return data;
+    } catch (error) {
+      const errorMessage = getSupabaseErrorMessage(error);
+      toast({
+        title: 'Error',
+        description: `Failed to create category: ${errorMessage}`,
+        variant: 'destructive',
+      });
+      return null;
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -107,9 +208,10 @@ export const ProductsAdmin = () => {
         });
       } catch (error) {
         console.error('Error deleting product:', error);
+        const errorMessage = getSupabaseErrorMessage(error);
         toast({
           title: "Error",
-          description: "Failed to delete product. Please try again.",
+          description: `Failed to delete product: ${errorMessage}`,
           variant: "destructive",
         });
       }
@@ -118,6 +220,10 @@ export const ProductsAdmin = () => {
 
   const handleSaveProduct = async (product: any) => {
     try {
+      const stockQuantity = Number.isFinite(Number(product.stock_quantity))
+        ? Math.max(0, Math.floor(Number(product.stock_quantity)))
+        : 0;
+
       if (editingProduct) {
         // Update existing product
         const { data, error } = await supabase
@@ -137,6 +243,51 @@ export const ProductsAdmin = () => {
         if (error) throw error;
         if (data && data.length > 0) {
           setProducts(products.map(p => p.id === editingProduct.id ? data[0] : p));
+        }
+
+        const existingVariants = variantsMap[editingProduct.id] || [];
+
+        if (existingVariants.length > 0) {
+          const primaryVariant = existingVariants[0];
+          const { data: updatedVariantData, error: variantError } = await supabase
+            .from('product_variants')
+            .update({
+              stock_quantity: stockQuantity,
+            })
+            .eq('id', primaryVariant.id)
+            .select();
+
+          if (variantError) throw variantError;
+
+          if (updatedVariantData && updatedVariantData.length > 0) {
+            const updatedPrimaryVariant = updatedVariantData[0];
+            setVariantsMap((prev) => ({
+              ...prev,
+              [editingProduct.id]: [
+                updatedPrimaryVariant,
+                ...existingVariants.slice(1),
+              ],
+            }));
+          }
+        } else {
+          const variantPayload: Record<string, unknown> = {
+            product_id: editingProduct.id,
+            name: product.name,
+            size: 'ONE',
+            stock_quantity: stockQuantity,
+          };
+
+          const { data: createdVariant, error: createVariantError } = await (supabase
+            .from('product_variants') as any)
+            .insert([variantPayload])
+            .select();
+
+          if (createVariantError) throw createVariantError;
+
+          setVariantsMap((prev) => ({
+            ...prev,
+            [editingProduct.id]: createdVariant || [],
+          }));
         }
         
         toast({
@@ -161,11 +312,32 @@ export const ProductsAdmin = () => {
           
         if (error) throw error;
         if (data && data.length > 0) {
-          setProducts([...products, data[0]]);
-          // Initialize empty variants array for new product
+          const createdProduct = data[0];
+
+          const variantPayload: Record<string, unknown> = {
+            product_id: createdProduct.id,
+            name: createdProduct.name,
+            size: 'ONE',
+            stock_quantity: stockQuantity,
+          };
+
+          const { data: createdVariant, error: variantError } = await (supabase
+            .from('product_variants') as any)
+            .insert([variantPayload])
+            .select();
+
+          if (variantError) {
+            await supabase
+              .from('products')
+              .delete()
+              .eq('id', createdProduct.id);
+            throw variantError;
+          }
+
+          setProducts([...products, createdProduct]);
           setVariantsMap({
             ...variantsMap,
-            [data[0].id]: []
+            [createdProduct.id]: createdVariant || [],
           });
         }
         
@@ -178,9 +350,10 @@ export const ProductsAdmin = () => {
       setShowForm(false);
     } catch (error) {
       console.error('Error saving product:', error);
+      const errorMessage = getSupabaseErrorMessage(error);
       toast({
         title: "Error",
-        description: "Failed to save product. Please try again.",
+        description: `Failed to save product: ${errorMessage}`,
         variant: "destructive",
       });
     }
@@ -191,7 +364,7 @@ export const ProductsAdmin = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Products</h1>
         <div className="space-x-2">
-          <Button variant="outline" onClick={fetchProducts}>
+          <Button variant="outline" onClick={handleRefresh}>
             <RefreshCw className="mr-2 h-4 w-4" /> Refresh
           </Button>
           <Button onClick={() => { setEditingProduct(null); setShowForm(true); }}>
@@ -204,6 +377,9 @@ export const ProductsAdmin = () => {
         <ProductForm 
           product={editingProduct} 
           onSave={handleSaveProduct} 
+          categories={categories}
+          onCreateCategory={handleCreateCategory}
+          initialStockQuantity={editingProduct ? (variantsMap[editingProduct.id]?.[0]?.stock_quantity ?? 0) : 0}
           onCancel={() => setShowForm(false)} 
         />
       ) : isLoading ? (
@@ -228,6 +404,7 @@ export const ProductsAdmin = () => {
                   <TableHead>Price</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Stock</TableHead>
                   <TableHead>Variants</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -246,7 +423,7 @@ export const ProductsAdmin = () => {
                     </TableCell>
                     <TableCell>{product.name}</TableCell>
                     <TableCell>${product.price.toFixed(2)}</TableCell>
-                    <TableCell>{product.category_id}</TableCell>
+                    <TableCell>{getCategoryName(product.category_id)}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         product.is_active 
@@ -256,6 +433,7 @@ export const ProductsAdmin = () => {
                         {product.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </TableCell>
+                    <TableCell>{getTotalStock(product.id)}</TableCell>
                     <TableCell>{variantsMap[product.id]?.length || 0}</TableCell>
                     <TableCell className="space-x-2">
                       <Button variant="outline" size="sm" onClick={() => handleEdit(product)}>

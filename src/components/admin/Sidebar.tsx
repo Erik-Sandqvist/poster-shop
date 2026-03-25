@@ -1,6 +1,6 @@
 // src/components/admin/Sidebar.tsx
 import { NavLink } from 'react-router-dom';
-import { Home, Package, Users, Settings, LogOut, ShoppingCart } from 'lucide-react';
+import { Home, Package, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const Sidebar = () => {
@@ -26,33 +26,6 @@ export const Sidebar = () => {
           }
         >
           <Package size={18} /> Products
-        </NavLink>
-        <NavLink 
-          to="/admin/orders" 
-          className={({ isActive }) => 
-            cn("flex items-center gap-2 p-2 rounded hover:bg-slate-700", 
-              isActive && "bg-slate-700")
-          }
-        >
-          <ShoppingCart size={18} /> Orders
-        </NavLink>
-        <NavLink 
-          to="/admin/customers" 
-          className={({ isActive }) => 
-            cn("flex items-center gap-2 p-2 rounded hover:bg-slate-700", 
-              isActive && "bg-slate-700")
-          }
-        >
-          <Users size={18} /> Customers
-        </NavLink>
-        <NavLink 
-          to="/admin/settings" 
-          className={({ isActive }) => 
-            cn("flex items-center gap-2 p-2 rounded hover:bg-slate-700", 
-              isActive && "bg-slate-700")
-          }
-        >
-          <Settings size={18} /> Settings
         </NavLink>
         
         <div className="pt-4 mt-4 border-t border-slate-700">

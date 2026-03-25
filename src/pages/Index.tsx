@@ -107,18 +107,17 @@ const Index = () => {
         style={{ boxShadow: '0 25px 60px -1px rgba(255, 219, 41, 0.8)' }}
       >
         {/* Silk Background */}
-        <div className="absolute inset-0 w-full h-full">
-          <Silk speed={3} scale={1.5} color="#ffdb29" noiseIntensity={1.2} rotation={0} />
-        </div>
+              {/* <div className="absolute inset-0 w-full h-full">
+                <Silk speed={3} scale={1.5} color="#172626" noiseIntensity={1.2} rotation={0} />
+              </div> */}
         
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 text-center">
         <h1 style={{ fontFamily: 'Rubik Dirt, cursive' }} className="text-6xl mb-6 mt-4 text-foreground">
-            Nohamma
+            Sunit
           </h1>
           <p className="text-2xl text-foreground mb-8 max-w-2xl mx-auto">
-            En butik som är till för norrahammarsborna att kunna utrycka sin kärlek till Nohamma genom kläder och accessoarer. Vi erbjuder ett brett utbud av produkter med unika och kreativa designer som speglar Nohammas anda och kultur.
-          </p>
+           Buy Posters</p>
           <div className="space-x-4">
             <Link to="/products">
               <Button size="lg" className="px-8">

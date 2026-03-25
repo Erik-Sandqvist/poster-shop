@@ -42,6 +42,13 @@ export const Products = () => {
     return variants.filter(v => v.product_id === productId);
   };
 
+  const getTotalStock = (productId: string) => {
+    return getProductVariants(productId).reduce((total, variant) => {
+      const stock = Number((variant as unknown as { stock_quantity?: number | string }).stock_quantity ?? 0);
+      return total + (Number.isFinite(stock) ? stock : 0);
+    }, 0);
+  };
+
   const getProductsByCategory = (categoryId: string) => {
     return products.filter(p => p.category_id === categoryId);
   };
@@ -80,11 +87,15 @@ export const Products = () => {
         <TabsContent value="all" className="mt-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map(product => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                variants={getProductVariants(product.id)}
-              />
+              <div key={product.id} className="space-y-2">
+                <ProductCard
+                  product={product}
+                  variants={getProductVariants(product.id)}
+                />
+                <p className="text-sm text-muted-foreground px-1">
+                  I lager: {getTotalStock(product.id)}
+                </p>
+              </div>
             ))}
           </div>
         </TabsContent>
@@ -93,11 +104,15 @@ export const Products = () => {
           <TabsContent key={category.id} value={category.id} className="mt-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {getProductsByCategory(category.id).map(product => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  variants={getProductVariants(product.id)}
-                />
+                <div key={product.id} className="space-y-2">
+                  <ProductCard
+                    product={product}
+                    variants={getProductVariants(product.id)}
+                  />
+                  <p className="text-sm text-muted-foreground px-1">
+                    I lager: {getTotalStock(product.id)}
+                  </p>
+                </div>
               ))}
             </div>
           </TabsContent>

@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from './pages/Index';
 import { Products } from "./pages/Products";
 import { ProductDetail } from "./pages/ProductDetail";
@@ -41,6 +41,7 @@ const App = () => (
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Dashboard />} />
                 <Route path="products" element={<ProductsAdmin />} />
+                <Route path="*" element={<Navigate to="/admin" replace />} />
                 {/* Add more admin routes as needed */}
                 {/* <Route path="orders" element={<OrdersAdmin />} /> */}
                 {/* <Route path="settings" element={<SettingsAdmin />} /> */}
