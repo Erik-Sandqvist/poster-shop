@@ -10,17 +10,17 @@
   }
   
   .dark {
-    background-color: #083540;
+    background-color: #021214;
     color: #f1f5f9;
   }
   
   .dark body {
-    background-color: #083540;
+    background-color: #021214;
     color: #f1f5f9;
   }
   
   .dark .bg-background {
-    background-color: #083540 !important;
+    background-color: #021214 !important;
   }
   
   .dark .text-foreground {

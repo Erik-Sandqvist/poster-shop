@@ -94,43 +94,32 @@ function FeaturedProducts() {
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-{/* <Silk
-  speed={5}
-  scale={1}
-  color="#7B7481"
-  noiseIntensity={1.5}
-  rotation={0}
-/> */}
+
       {/* Hero Section */}
       <section 
-        className="relative py-32 mt-2 overflow-hidden" 
+        className="relative py-32 overflow-hidden mt-8 w-10/12 mx-auto rounded-lg" 
         style={{ 
           backgroundImage: 'url(./public/img/nocco-posters-mockup.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          boxShadow: '0 25px 60px -1px rgba(255, 219, 41, 0.8)' 
+          boxShadow: '0 15px 40px -1px rgba(25, 29, 41, 0.8)' 
         }}
       >
-        {/* Silk Background */}
-              {/* <div className="absolute inset-0 w-full h-full">
-                <Silk speed={3} scale={1.5} color="#172626" noiseIntensity={1.2} rotation={0} />
-              </div> */}
-        
-        {/* Content */}
+        <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
         <div className="relative z-10 container mx-auto px-4 text-center">
-        <h1 style={{ fontFamily: 'Rubik Dirt, cursive' }} className="text-6xl mb-6 mt-4 text-primary">
+        <h1 style={{ fontFamily: 'Rubik Dirt, cursive' }} className="text-6xl mb-6 mt-4 text-white">
             Sunit
           </h1>
-          <p className="text-2xl text-primary mb-8 max-w-2xl mx-auto">
+          <p className="text-2xl text-white mb-8 max-w-2xl mx-auto">
          Posters</p>
-          <div className="space-x-4">
+          {/* <div className="space-x-4">
             <Link to="/products">
               <Button size="lg" className="px-8">
                 Handla nu
               </Button>
             </Link>
 
-          </div>
+          </div> */}
         </div>
       </section>
 

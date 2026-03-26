@@ -41,9 +41,9 @@ export const Header = () => {
   };
 
   return (
-    <header className="border-b bg-[rgba(78, 96, 98, 0.8)] backdrop-blur-lg shadow-lg top-0 w-full fixed z-50"> 
+    <header className="border-b  backdrop-blur-lg shadow-lg top-0 w-full fixed z-50"> 
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold text-foreground">
+        <Link to="/" style={{ fontFamily: 'Rubik Dirt, cursive' }} className="text-2xl font-bold text-foreground">
           Sunit
         </Link>
         <Button
