@@ -103,8 +103,13 @@ const Index = () => {
 /> */}
       {/* Hero Section */}
       <section 
-        className="relative py-16 mt-2 overflow-hidden" 
-        style={{ boxShadow: '0 25px 60px -1px rgba(255, 219, 41, 0.8)' }}
+        className="relative py-32 mt-2 overflow-hidden" 
+        style={{ 
+          backgroundImage: 'url(./public/img/nocco-posters-mockup.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          boxShadow: '0 25px 60px -1px rgba(255, 219, 41, 0.8)' 
+        }}
       >
         {/* Silk Background */}
               {/* <div className="absolute inset-0 w-full h-full">
@@ -113,11 +118,11 @@ const Index = () => {
         
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 text-center">
-        <h1 style={{ fontFamily: 'Rubik Dirt, cursive' }} className="text-6xl mb-6 mt-4 text-foreground">
+        <h1 style={{ fontFamily: 'Rubik Dirt, cursive' }} className="text-6xl mb-6 mt-4 text-primary">
             Sunit
           </h1>
-          <p className="text-2xl text-foreground mb-8 max-w-2xl mx-auto">
-           Buy Posters</p>
+          <p className="text-2xl text-primary mb-8 max-w-2xl mx-auto">
+         Posters</p>
           <div className="space-x-4">
             <Link to="/products">
               <Button size="lg" className="px-8">
