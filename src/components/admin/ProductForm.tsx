@@ -20,9 +20,10 @@ interface ProductFormProps {
   categories: Category[];
   onCreateCategory: (name: string, description?: string) => Promise<Category | null>;
   initialStockQuantity?: number;
+  initialVariantSize?: string;
 }
 
-const ProductForm = ({ product, onSave, onCancel, categories, onCreateCategory, initialStockQuantity = 0 }: ProductFormProps) => {
+const ProductForm = ({ product, onSave, onCancel, categories, onCreateCategory, initialStockQuantity = 0, initialVariantSize = 'ONE' }: ProductFormProps) => {
   const [formData, setFormData] = useState({
     name: product?.name || "",
     description: product?.description || "",
@@ -31,6 +32,7 @@ const ProductForm = ({ product, onSave, onCancel, categories, onCreateCategory, 
     image_url: product?.image_url || "",
     is_active: product?.is_active ?? true,
     stock_quantity: initialStockQuantity,
+    size: initialVariantSize,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -47,6 +49,9 @@ const ProductForm = ({ product, onSave, onCancel, categories, onCreateCategory, 
     if (!formData.price || formData.price <= 0) newErrors.price = "Valid price is required";
     if (Number.isNaN(formData.stock_quantity) || formData.stock_quantity < 0) {
       newErrors.stock_quantity = "Stock quantity must be 0 or more";
+    }
+    if (!formData.size || !formData.size.trim()) {
+      newErrors.size = "Size is required";
     }
     
     setErrors(newErrors);
@@ -213,6 +218,26 @@ const ProductForm = ({ product, onSave, onCancel, categories, onCreateCategory, 
               className={errors.stock_quantity ? "border-red-500" : ""}
             />
             {errors.stock_quantity && <p className="text-red-500 text-sm">{errors.stock_quantity}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="size">Size</Label>
+            <select
+              id="size"
+              name="size"
+              value={formData.size}
+              onChange={handleChange}
+              className={`w-full px-3 py-2 border rounded-md ${errors.size ? 'border-red-500' : ''}`}
+            >
+              <option value="ONE">ONE</option>
+              <option value="A4">A4</option>
+              <option value="A3">A3</option>
+              <option value="A2">A2</option>
+              <option value="30x40">30x40</option>
+              <option value="50x70">50x70</option>
+              <option value="70x100">70x100</option>
+            </select>
+            {errors.size && <p className="text-red-500 text-sm">{errors.size}</p>}
           </div>
 
           <div>

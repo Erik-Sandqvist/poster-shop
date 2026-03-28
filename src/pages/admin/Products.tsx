@@ -223,6 +223,9 @@ export const ProductsAdmin = () => {
       const stockQuantity = Number.isFinite(Number(product.stock_quantity))
         ? Math.max(0, Math.floor(Number(product.stock_quantity)))
         : 0;
+      const selectedSize = typeof product.size === 'string' && product.size.trim().length > 0
+        ? product.size.trim()
+        : 'ONE';
 
       if (editingProduct) {
         // Update existing product
@@ -252,6 +255,7 @@ export const ProductsAdmin = () => {
           const { data: updatedVariantData, error: variantError } = await supabase
             .from('product_variants')
             .update({
+              size: selectedSize,
               stock_quantity: stockQuantity,
             })
             .eq('id', primaryVariant.id)
@@ -273,7 +277,7 @@ export const ProductsAdmin = () => {
           const variantPayload: Record<string, unknown> = {
             product_id: editingProduct.id,
             name: product.name,
-            size: 'ONE',
+            size: selectedSize,
             stock_quantity: stockQuantity,
           };
 
@@ -317,7 +321,7 @@ export const ProductsAdmin = () => {
           const variantPayload: Record<string, unknown> = {
             product_id: createdProduct.id,
             name: createdProduct.name,
-            size: 'ONE',
+            size: selectedSize,
             stock_quantity: stockQuantity,
           };
 
@@ -380,6 +384,7 @@ export const ProductsAdmin = () => {
           categories={categories}
           onCreateCategory={handleCreateCategory}
           initialStockQuantity={editingProduct ? (variantsMap[editingProduct.id]?.[0]?.stock_quantity ?? 0) : 0}
+          initialVariantSize={editingProduct ? (variantsMap[editingProduct.id]?.[0]?.size ?? 'ONE') : 'ONE'}
           onCancel={() => setShowForm(false)} 
         />
       ) : isLoading ? (
