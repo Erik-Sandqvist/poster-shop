@@ -18,6 +18,7 @@ import { CartProvider } from '@/context/CartContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { Checkout } from './pages/Checkout';
 import { CheckoutSuccess } from './pages/CheckoutSuccess';
+import { CheckoutReturn } from './pages/CheckoutReturn';
 
 // Import Admin components
 import { ProductsAdmin } from "./pages/admin/Products";
@@ -56,6 +57,7 @@ const App = () => (
               <Route path="/cart" element={<Layout><Cart /></Layout>} />
               <Route path="/auth" element={<Layout><Auth /></Layout>} />
               <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
+              <Route path="/checkout/return" element={<Layout><CheckoutReturn /></Layout>} />
               <Route path="/checkout/success" element={<Layout><CheckoutSuccess /></Layout>} />
               <Route path="*" element={<Layout><NotFound /></Layout>} />
             </Routes>

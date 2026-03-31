@@ -1,4 +1,14 @@
-project_id = "wexuxfgcpzjqikuuecir"
+project_id = "blkgzqiohnvupnskgqvo"
+[functions.create-checkout]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/create-checkout/index.ts"
+
+[functions.session-status]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/session-status/index.ts"
+
 [functions.create-checkout-session]
 enabled = true
 verify_jwt = true

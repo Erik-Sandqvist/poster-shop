@@ -99,7 +99,7 @@ const Index = () => {
       <section 
         className="relative py-32 overflow-hidden mt-8 w-10/12 mx-auto rounded-lg" 
         style={{ 
-          backgroundImage: 'url(./public/img/nocco-posters-mockup.png)',
+          backgroundImage: 'url(/img/nocco-posters-mockup.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           boxShadow: '0 15px 40px -1px rgba(25, 29, 41, 0.8)' 

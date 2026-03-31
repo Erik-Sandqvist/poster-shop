@@ -11,7 +11,12 @@ import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 // Ladda Stripe (ska vara utanför komponenten)
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+const hasValidStripePublishableKey =
+  typeof stripePublishableKey === 'string' &&
+  stripePublishableKey.startsWith('pk_') &&
+  !stripePublishableKey.includes('your_publishable_key');
+const stripePromise = hasValidStripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
 export const Checkout = () => {
   const { cartItems, guestCart, getTotalPrice, getTotalItems } = useCart();
@@ -55,6 +60,27 @@ export const Checkout = () => {
 
   if (allCartItems.length === 0) {
     return null;
+  }
+
+  if (!stripePromise) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/cart')}
+          className="mb-6"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Tillbaka till kundvagn
+        </Button>
+        <div className="max-w-2xl mx-auto bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+          <p className="font-semibold">Stripe-nyckel saknas</p>
+          <p>
+            Sätt <strong>VITE_STRIPE_PUBLISHABLE_KEY</strong> i .env.local och starta om dev-servern.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
