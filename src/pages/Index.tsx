@@ -57,6 +57,17 @@ function FeaturedProducts() {
     return variants.filter(v => v.product_id === productId);
   };
 
+  const productsByCategory = categories
+    .map(category => ({
+      category,
+      products: products.filter(product => product.category_id === category.id),
+    }))
+    .filter(group => group.products.length > 0);
+
+  const uncategorizedProducts = products.filter(
+    product => !categories.some(category => category.id === product.category_id)
+  );
+
   if (loading) {
     return (
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -76,17 +87,42 @@ function FeaturedProducts() {
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {products.map(product => (
-        <ProductCard
-          key={product.id}
-          product={product}
-          variants={getProductVariants(product.id)}
-          enableMagicEffects={true}
-          glowColor="179, 176, 7"
-          particleCount={12}
-        />
+    <div className="space-y-12">
+      {productsByCategory.map(({ category, products: categoryProducts }) => (
+        <section key={category.id} className="space-y-4">
+          <h3 className="text-2xl font-semibold">{category.name}</h3>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {categoryProducts.map(product => (
+              <ProductCard
+                key={product.id}
+                product={product as Product}
+                variants={getProductVariants(product.id)}
+                enableMagicEffects={true}
+                glowColor="179, 176, 7"
+                particleCount={12}
+              />
+            ))}
+          </div>
+        </section>
       ))}
+
+      {uncategorizedProducts.length > 0 && (
+        <section className="space-y-4">
+          <h3 className="text-2xl font-semibold">Övrigt</h3>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {uncategorizedProducts.map(product => (
+              <ProductCard
+                key={product.id}
+                product={product as Product}
+                variants={getProductVariants(product.id)}
+                enableMagicEffects={true}
+                glowColor="179, 176, 7"
+                particleCount={12}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
