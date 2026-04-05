@@ -57,7 +57,15 @@ function FeaturedProducts() {
     return variants.filter(v => v.product_id === productId);
   };
 
-  const productsByCategory = categories
+  const sortedCategories = [...categories].sort((a, b) => {
+    const aIsDrink = /drink/i.test(a.name);
+    const bIsDrink = /drink/i.test(b.name);
+
+    if (aIsDrink === bIsDrink) return 0;
+    return aIsDrink ? -1 : 1;
+  });
+
+  const productsByCategory = sortedCategories
     .map(category => ({
       category,
       products: products.filter(product => product.category_id === category.id),

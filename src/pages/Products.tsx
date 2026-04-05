@@ -53,6 +53,14 @@ export const Products = () => {
     return products.filter(p => p.category_id === categoryId);
   };
 
+  const sortedCategories = [...categories].sort((a, b) => {
+    const aIsDrink = /drink/i.test(a.name);
+    const bIsDrink = /drink/i.test(b.name);
+
+    if (aIsDrink === bIsDrink) return 0;
+    return aIsDrink ? -1 : 1;
+  });
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -77,7 +85,7 @@ export const Products = () => {
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="all">All Products</TabsTrigger>
-          {categories.map(category => (
+          {sortedCategories.map(category => (
             <TabsTrigger key={category.id} value={category.id}>
               {category.name.replace(' T-Shirts', '')}
             </TabsTrigger>
@@ -100,7 +108,7 @@ export const Products = () => {
           </div>
         </TabsContent>
 
-        {categories.map(category => (
+        {sortedCategories.map(category => (
           <TabsContent key={category.id} value={category.id} className="mt-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {getProductsByCategory(category.id).map(product => (
